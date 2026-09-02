@@ -1,0 +1,58 @@
+# macOS
+.DS_Store
+
+# IDE and local workspace
+*.code-workspace
+.vscode/
+.idea/
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+.aws/
+credentials
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# AWS CDK generated artifacts
+cdk.out/
+*.cdk.staging
+cdk-outputs.json
+
+# TypeScript build output
+dist/
+coverage/
+*.tsbuildinfo
+
+# Python and Flask
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+instance/
+
+# Flask runtime files
+*.sqlite
+*.sqlite3
+
+# React build artifacts
+frontend/build/
+frontend/dist/
+
+# Temporary files and logs
+*.log
+*.tmp
+*.swp
+*~
