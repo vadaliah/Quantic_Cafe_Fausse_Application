@@ -475,4 +475,109 @@
     flex-direction: column;
     padding: 22px 16px;
   }
+
+  .navigation-link:hover {
+    color: var(--primary-dark);
+    background: var(--primary-soft);
+  }
+
+  .page-shell {
+    width: min(1180px, calc(100% - 48px));
+    margin: 0 auto;
+    padding: 72px 0 80px;
+    flex: 1;
+  }
+
+  .page-shell-content {
+    max-width: 820px;
+  }
+
+  .page-shell-content h1 {
+    margin: 0 0 18px;
+    color: var(--heading);
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: clamp(2.4rem, 6vw, 4.25rem);
+    font-weight: 600;
+    line-height: 1.08;
+  }
+
+  .page-shell-content>p:not(.eyebrow) {
+    max-width: 720px;
+    margin: 0;
+    color: var(--muted);
+    font-size: 1.08rem;
+    line-height: 1.75;
+  }
+
+  .page-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 30px;
+  }
+
+  .primary-link,
+  .secondary-link {
+    display: inline-flex;
+    min-height: 48px;
+    padding: 0 20px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 7px;
+    font-weight: 800;
+    text-decoration: none;
+  }
+
+  .primary-link {
+    background: var(--primary);
+    color: #ffffff;
+  }
+
+  .secondary-link {
+    border: 1px solid var(--primary);
+    color: var(--primary);
+    background: transparent;
+  }
+
+  .primary-link:hover {
+    background: var(--primary-dark);
+  }
+
+  .secondary-link:hover {
+    background: var(--primary-soft);
+  }
+
+  .primary-link:focus-visible,
+  .secondary-link:focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 3px;
+  }
+
+  .page-placeholder {
+    margin-top: 32px;
+    padding: 28px;
+    border: 1px dashed var(--input-border);
+    border-radius: 12px;
+    background: var(--surface);
+    color: var(--muted);
+    text-align: center;
+  }
+
+  @media (max-width: 820px) {
+    .page-shell {
+      width: min(100% - 32px, 1180px);
+      padding: 48px 0 56px;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .page-actions {
+      flex-direction: column;
+    }
+
+    .primary-link,
+    .secondary-link {
+      width: 100%;
+    }
+  }
 }
