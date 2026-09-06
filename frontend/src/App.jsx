@@ -1,12 +1,12 @@
 import Header from './components/Header'
-import ReservationWireframe from './components/ReservationWireframe'
+import ReservationView from './views/ReservationView'
 import './App.css'
 
 function App() {
   return (
     <div className="app">
       <Header />
-      <ReservationWireframe />
+      <ReservationView />
 
       <footer className="site-footer">
         <p>© Café Fausse</p>
