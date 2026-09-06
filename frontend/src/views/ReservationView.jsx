@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { submitReservation } from '../services/reservationService'
 
 const initialFormData = {
   date: '',
@@ -10,8 +11,49 @@ const initialFormData = {
   newsletterOptIn: false,
 }
 
+function validateReservation(formData) {
+  const validationErrors = {}
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+  if (!formData.date) {
+    validationErrors.date = 'Select a reservation date.'
+  } else {
+    const selectedDate = new Date(`${formData.date}T00:00:00`)
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+
+    if (selectedDate < today) {
+      validationErrors.date = 'Reservation date cannot be in the past.'
+    }
+  }
+
+  if (!formData.time) {
+    validationErrors.time = 'Select a reservation time.'
+  }
+
+  if (!formData.guestCount) {
+    validationErrors.guestCount = 'Select the number of guests.'
+  }
+
+  if (!formData.customerName.trim()) {
+    validationErrors.customerName = 'Enter your name.'
+  }
+
+  if (!formData.email.trim()) {
+    validationErrors.email = 'Enter your email address.'
+  } else if (!emailPattern.test(formData.email)) {
+    validationErrors.email = 'Enter a valid email address.'
+  }
+
+  return validationErrors
+}
+
 function ReservationView() {
   const [formData, setFormData] = useState(initialFormData)
+  const [errors, setErrors] = useState({})
+  const [validationMessage, setValidationMessage] = useState('')
+  const [submissionError, setSubmissionError] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   function handleInputChange(event) {
     const { name, type, value, checked } = event.target
@@ -20,11 +62,58 @@ function ReservationView() {
       ...currentFormData,
       [name]: type === 'checkbox' ? checked : value,
     }))
+
+    setErrors((currentErrors) => {
+      if (!currentErrors[name]) {
+        return currentErrors
+      }
+
+      const updatedErrors = { ...currentErrors }
+      delete updatedErrors[name]
+      return updatedErrors
+    })
+
+    setValidationMessage('')
+    setSubmissionError('')
+  }
+
+  async function handleSubmit(event) {
+    event.preventDefault()
+
+    const validationErrors = validateReservation(formData)
+
+    setErrors(validationErrors)
+    setValidationMessage('')
+    setSubmissionError('')
+
+    if (Object.keys(validationErrors).length > 0) {
+      return
+    }
+
+    setIsSubmitting(true)
+
+    try {
+      await submitReservation(formData)
+
+      setValidationMessage(
+        'Your reservation request was submitted successfully.',
+      )
+    } catch (error) {
+      setSubmissionError(error.message)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   function handleReset() {
     setFormData(initialFormData)
+    setErrors({})
+    setValidationMessage('')
+    setSubmissionError('')
+    setIsSubmitting(false)
   }
+
+  const hasErrors = Object.keys(errors).length > 0
 
   return (
     <main id="reservation" className="reservation-page">
@@ -45,7 +134,18 @@ function ReservationView() {
             <p>Fields marked with an asterisk are required.</p>
           </div>
 
-          <form className="reservation-form">
+          <form
+            className="reservation-form"
+            onSubmit={handleSubmit}
+            noValidate
+          >
+            {hasErrors && (
+              <div className="error-summary" role="alert">
+                <strong>Please review the reservation form.</strong>
+                <p>Correct the highlighted fields before continuing.</p>
+              </div>
+            )}
+
             <div className="form-grid">
               <div className="form-field">
                 <label htmlFor="reservation-date">Date *</label>
@@ -55,7 +155,14 @@ function ReservationView() {
                   type="date"
                   value={formData.date}
                   onChange={handleInputChange}
+                  aria-invalid={Boolean(errors.date)}
+                  aria-describedby={errors.date ? 'date-error' : undefined}
                 />
+                {errors.date && (
+                  <p id="date-error" className="field-error">
+                    {errors.date}
+                  </p>
+                )}
               </div>
 
               <div className="form-field">
@@ -65,6 +172,8 @@ function ReservationView() {
                   name="time"
                   value={formData.time}
                   onChange={handleInputChange}
+                  aria-invalid={Boolean(errors.time)}
+                  aria-describedby={errors.time ? 'time-error' : undefined}
                 >
                   <option value="" disabled>
                     Select a time
@@ -74,6 +183,11 @@ function ReservationView() {
                   <option value="19:00">7:00 PM</option>
                   <option value="20:00">8:00 PM</option>
                 </select>
+                {errors.time && (
+                  <p id="time-error" className="field-error">
+                    {errors.time}
+                  </p>
+                )}
               </div>
 
               <div className="form-field full-width">
@@ -83,6 +197,10 @@ function ReservationView() {
                   name="guestCount"
                   value={formData.guestCount}
                   onChange={handleInputChange}
+                  aria-invalid={Boolean(errors.guestCount)}
+                  aria-describedby={
+                    errors.guestCount ? 'guest-count-error' : undefined
+                  }
                 >
                   <option value="" disabled>
                     Select party size
@@ -98,6 +216,11 @@ function ReservationView() {
                     )
                   })}
                 </select>
+                {errors.guestCount && (
+                  <p id="guest-count-error" className="field-error">
+                    {errors.guestCount}
+                  </p>
+                )}
               </div>
 
               <div className="form-field full-width">
@@ -109,7 +232,16 @@ function ReservationView() {
                   value={formData.customerName}
                   onChange={handleInputChange}
                   placeholder="Enter your full name"
+                  aria-invalid={Boolean(errors.customerName)}
+                  aria-describedby={
+                    errors.customerName ? 'customer-name-error' : undefined
+                  }
                 />
+                {errors.customerName && (
+                  <p id="customer-name-error" className="field-error">
+                    {errors.customerName}
+                  </p>
+                )}
               </div>
 
               <div className="form-field">
@@ -121,7 +253,14 @@ function ReservationView() {
                   value={formData.email}
                   onChange={handleInputChange}
                   placeholder="name@example.com"
+                  aria-invalid={Boolean(errors.email)}
+                  aria-describedby={errors.email ? 'email-error' : undefined}
                 />
+                {errors.email && (
+                  <p id="email-error" className="field-error">
+                    {errors.email}
+                  </p>
+                )}
               </div>
 
               <div className="form-field">
@@ -137,7 +276,7 @@ function ReservationView() {
               </div>
             </div>
 
-            <label className="rekt checkbox-field" htmlFor="newsletter-opt-in">
+            <label className="checkbox-field" htmlFor="newsletter-opt-in">
               <input
                 id="newsletter-opt-in"
                 name="newsletterOptIn"
@@ -155,18 +294,31 @@ function ReservationView() {
                 className="secondary-button"
                 type="button"
                 onClick={handleReset}
+                disabled={isSubmitting}
               >
                 Reset
               </button>
 
-              <button className="primary-button" type="button">
-                Reserve Table
+              <button
+                className="primary-button"
+                type="submit"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? 'Submitting…' : 'Reserve Table'}
               </button>
             </div>
 
-            <p className="wireframe-note">
-              Reservation submission will be implemented in a later story.
-            </p>
+            {submissionError && (
+              <p className="submission-error" role="alert">
+                {submissionError}
+              </p>
+            )}
+
+            {validationMessage && (
+              <p className="validation-success" role="status">
+                {validationMessage}
+              </p>
+            )}
           </form>
         </section>
 
@@ -209,7 +361,7 @@ function ReservationView() {
           </section>
 
           <p className="availability-note">
-            Reservations and table assignments are subject toiënt availability.
+            Reservations and table assignments are subject to availability.
           </p>
         </aside>
       </div>
