@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { submitReservation } from '../services/reservationService'
+import ReservationConfirmation from '../components/ReservationConfirmation'
 
 const initialFormData = {
   date: '',
@@ -54,6 +55,7 @@ function ReservationView() {
   const [validationMessage, setValidationMessage] = useState('')
   const [submissionError, setSubmissionError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [confirmation, setConfirmation] = useState(null)
 
   function handleInputChange(event) {
     const { name, type, value, checked } = event.target
@@ -75,6 +77,7 @@ function ReservationView() {
 
     setValidationMessage('')
     setSubmissionError('')
+    setConfirmation(null)
   }
 
   async function handleSubmit(event) {
@@ -93,11 +96,13 @@ function ReservationView() {
     setIsSubmitting(true)
 
     try {
-      await submitReservation(formData)
+      const response = await submitReservation(formData)
 
-      setValidationMessage(
-        'Your reservation request was submitted successfully.',
-      )
+      setValidationMessage('')
+      setConfirmation({
+        customerName: formData.customerName,
+        reservation: response.reservation,
+      })
     } catch (error) {
       setSubmissionError(error.message)
     } finally {
@@ -111,6 +116,7 @@ function ReservationView() {
     setValidationMessage('')
     setSubmissionError('')
     setIsSubmitting(false)
+    setConfirmation(null)
   }
 
   const hasErrors = Object.keys(errors).length > 0
@@ -320,6 +326,13 @@ function ReservationView() {
               </p>
             )}
           </form>
+          {confirmation && (
+            <ReservationConfirmation
+              customerName={confirmation.customerName}
+              reservation={confirmation.reservation}
+              onNewReservation={handleReset}
+            />
+          )}
         </section>
 
         <aside
