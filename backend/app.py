@@ -2,6 +2,7 @@ from flask import Flask, jsonify
 
 from config import Config
 from controllers.reservation_controller import reservation_blueprint
+from controllers.menu_controller import menu_blueprint
 
 
 def create_app():
@@ -9,6 +10,7 @@ def create_app():
     app.config.from_object(Config)
 
     app.register_blueprint(reservation_blueprint)
+    app.register_blueprint(menu_blueprint)
 
     @app.get("/api/health")
     def health():
