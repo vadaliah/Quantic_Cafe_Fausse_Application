@@ -56,3 +56,13 @@ frontend/dist/
 *.tmp
 *.swp
 *~
+
+# Local application runtime
+.runtime/
+.vite/
+*.log
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
